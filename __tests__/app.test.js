@@ -12,22 +12,32 @@ afterAll(()=>{
     db.end()
 })
 
-describe('/api/topics', () => {
-    test('GET: 200 - responds with an array of topic objects', () => {
+describe("all bad URLs",()=>{
+    describe("/api/topics",()=>{
+        test("404 URL NOT FOUND", () => {
         return request(app)
-            .get('/api/topics')
-            .expect(200)
-            .then(({ body }) => {
-                expect(body.topics).toBeInstanceOf(Array);
-                body.topics.forEach(topic => {
-                    expect(topic).toEqual(
-                        expect.objectContaining({
-                            slug: expect.any(String),
-                            description: expect.any(String),
-                        })
-                    );
-                });
-            });
+        .get("/api/tipics")
+        .expect(404)
+        .then(({ body }) => {
+        expect(body.msg).toBe("URL NOT FOUND")
+        }) 
+     })
+    })
+})
+
+describe('/api/topics', () => {
+    test("200: responds with an array of topic objects", () => {
+        return request(app)
+        .get ("/api/topics")
+        .expect(200)
+        .then(({body:{topics}}) => {
+            topics.forEach((topic) => {
+                expect(topic).toMatchObject({
+                    slug: expect.any(String),
+                    description: expect.any(String),
+                })
+            })
+        })   
     });
 
 })
