@@ -26,7 +26,7 @@ Create the following files in the root of your project and add the necessary cod
 
 For example:
 
-```.env.test includes "PGDATABASE=<your database>"```
+```.env.test "PGDATABASE=<your database>"```
 
 Ensure that both files are linked correctly with the appropriate databases.
 
