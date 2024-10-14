@@ -3,6 +3,7 @@ const app = require("../app.js")
 const db = require ("../db/connection.js")
 const seed = require("../db/seeds/seed.js")
 const data = require("../db/data/test-data")
+const endpoints = require ("../endpoints.json")
 
 beforeEach(()=>{
     return seed(data)
@@ -12,20 +13,8 @@ afterAll(()=>{
     db.end()
 })
 
-// describe("all bad URLs",()=>{
-//     describe("/api/topics",()=>{
-//         test("404 URL NOT FOUND", () => {
-//         return request(app)
-//         .get("/api/tipics")
-//         .expect(404)
-//         .then(({ body }) => {
-//         expect(body.msg).toBe("URL NOT FOUND")
-//         }) 
-//      })
-//     })
-// })
 
-describe('/api/topics', () => {
+describe("/api/topics", () => {
     test("200: responds with an array of topic objects", () => {
         return request(app)
         .get ("/api/topics")
@@ -50,5 +39,24 @@ describe('/api/topics', () => {
             expect(body.message).toBe("URL NOT FOUND")
         })
 
+    });
+});
+
+describe("/api", ()=>{
+    test("GET: 200 - responds with an object detailing all available endpoints", () => {
+        return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body })=>{
+            expect(body.endpoints).toEqual(endpoints)
+        })
+    });
+    test("GET: 404 - responds with and error message when a non-existent endpoint is requested", ()=>{
+        return request(app)
+        .get("/api/tipics")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.message).toBe("URL NOT FOUND")
+        });
     });
 });
