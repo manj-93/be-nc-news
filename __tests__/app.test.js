@@ -60,3 +60,23 @@ describe("/api", ()=>{
         });
     });
 });
+
+describe("/api/articles/:article_id", () => {
+    test("GET: 200 - responds with the correct article object for a valid id", () => {
+        return request(app)
+            .get("/api/articles/1")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: 1,
+                    body: expect.any(String),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                });
+            });
+    });
+});
