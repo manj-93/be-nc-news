@@ -13,18 +13,6 @@ afterAll(()=>{
     db.end()
 })
 
-// describe("all bad URLs",()=>{
-//     describe("/api/topics",()=>{
-//         test("404 URL NOT FOUND", () => {
-//         return request(app)
-//         .get("/api/tipics")
-//         .expect(404)
-//         .then(({ body }) => {
-//         expect(body.msg).toBe("URL NOT FOUND")
-//         }) 
-//      })
-//     })
-// })
 
 describe("/api/topics", () => {
     test("200: responds with an array of topic objects", () => {
@@ -62,5 +50,13 @@ describe("/api", ()=>{
         .then(({ body })=>{
             expect(body.endpoints).toEqual(endpoints)
         })
-    })
-})
+    });
+    test("GET: 404 - responds with and error message when a non-existent endpoint is requested", ()=>{
+        return request(app)
+        .get("/api/tipics")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.message).toBe("URL NOT FOUND")
+        });
+    });
+});
