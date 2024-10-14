@@ -79,4 +79,21 @@ describe("/api/articles/:article_id", () => {
                 });
             });
     });
+    test("GET: 404 - responds with an error message for an id that does not exist", ()=>{
+        return request(app)
+        .get("/api/articles/99999")
+        .expect(404)
+        .then(({ body })=>{
+            expect(body.message).toBe("Article not found")
+        })
+    });
+    test("GET: 400 - responds with an error message for an invalid ID", ()=>{
+        return request(app)
+        .get("/api/articles/invalid")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.message).toBe("Invalid ID")
+
+        })
+    })
 });
