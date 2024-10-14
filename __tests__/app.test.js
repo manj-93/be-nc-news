@@ -12,18 +12,18 @@ afterAll(()=>{
     db.end()
 })
 
-describe("all bad URLs",()=>{
-    describe("/api/topics",()=>{
-        test("404 URL NOT FOUND", () => {
-        return request(app)
-        .get("/api/tipics")
-        .expect(404)
-        .then(({ body }) => {
-        expect(body.msg).toBe("URL NOT FOUND")
-        }) 
-     })
-    })
-})
+// describe("all bad URLs",()=>{
+//     describe("/api/topics",()=>{
+//         test("404 URL NOT FOUND", () => {
+//         return request(app)
+//         .get("/api/tipics")
+//         .expect(404)
+//         .then(({ body }) => {
+//         expect(body.msg).toBe("URL NOT FOUND")
+//         }) 
+//      })
+//     })
+// })
 
 describe('/api/topics', () => {
     test("200: responds with an array of topic objects", () => {
@@ -42,5 +42,13 @@ describe('/api/topics', () => {
             })
         })   
     });
+    test("404: responds with an error message when a request is made to a path that doesn't exist", ()=>{
+        return request(app)
+        .get("/api/tipics")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.message).toBe("URL NOT FOUND")
+        })
 
-})
+    });
+});
