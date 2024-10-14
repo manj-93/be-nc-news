@@ -12,20 +12,20 @@ afterAll(()=>{
     db.end()
 })
 
-// describe("all bad URLs",()=>{
-//     describe("/api/topics",()=>{
-//         test("404 URL NOT FOUND", () => {
-//         return request(app)
-//         .get("/api/tipics")
-//         .expect(404)
-//         .then(({ body }) => {
-//         expect(body.msg).toBe("URL NOT FOUND")
-//         }) 
-//      })
-//     })
-// })
+describe("all bad URLs",()=>{
+    describe("/api/topics",()=>{
+        test("404 URL NOT FOUND", () => {
+        return request(app)
+        .get("/api/tipics")
+        .expect(404)
+        .then(({ body }) => {
+        expect(body.msg).toBe("URL NOT FOUND")
+        }) 
+     })
+    })
+})
 
-describe('/api/topics', () => {
+describe("/api/topics", () => {
     test("200: responds with an array of topic objects", () => {
         return request(app)
         .get ("/api/topics")
@@ -52,3 +52,14 @@ describe('/api/topics', () => {
 
     });
 });
+
+describe("/api", ()=>{
+    test("GET: 200 - responds with an object detailing all available endpoints", () => {
+        return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body })=>{
+            expect(body.endpoints).toEqual(endpoints)
+        })
+    })
+})
