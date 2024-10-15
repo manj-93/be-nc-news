@@ -20,12 +20,14 @@ app.use((err, request, response, next) => {
     if (err.status) {
         response.status(err.status).send({ message: err.message });
     } else {
-        response.status(500).send({ message: "Internal Server Error" });
+      next(err);
     }
 });
+
 
 app.all("*", (request, response) => {
     response.status(404).send({ message: "URL NOT FOUND" });
 });
+
 
 module.exports = app;
