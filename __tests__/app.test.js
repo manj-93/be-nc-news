@@ -106,21 +106,22 @@ describe("/api/articles", () => {
         .expect(200)
         .then(({ body: { articles } }) => {
             expect(articles).toBeInstanceOf(Array);
-            if (articles.length === 0){
-                return;
-            }
-            articles.forEach((article) => {
-                expect(article).toMatchObject({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    article_img_url: expect.any(String),
-                    comment_count: expect.any(Number),
+            expect(articles).toHaveLength(13);
+
+            if (articles.length > 0) {
+                articles.forEach((article) => {
+                    expect(article).toMatchObject({
+                        author: expect.any(String),
+                        title: expect.any(String),
+                        article_id: expect.any(Number),
+                        topic: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        article_img_url: expect.any(String),
+                        comment_count: expect.any(Number),
+                    });
                 });
-            });
+            }
         });
     });
     test("GET: 200 - responds with an object of article information", () => {
