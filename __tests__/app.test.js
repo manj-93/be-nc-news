@@ -106,21 +106,22 @@ describe("/api/articles", () => {
         .expect(200)
         .then(({ body: { articles } }) => {
             expect(articles).toBeInstanceOf(Array);
-            if (articles.length === 0){
-                return;
-            }
-            articles.forEach((article) => {
-                expect(article).toMatchObject({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    article_img_url: expect.any(String),
-                    comment_count: expect.any(Number),
+            expect(articles).toHaveLength(13);
+
+            if (articles.length > 0) {
+                articles.forEach((article) => {
+                    expect(article).toMatchObject({
+                        author: expect.any(String),
+                        title: expect.any(String),
+                        article_id: expect.any(Number),
+                        topic: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        article_img_url: expect.any(String),
+                        comment_count: expect.any(Number),
+                    });
                 });
-            });
+            }
         });
     });
     test("GET: 200 - responds with an object of article information", () => {
@@ -177,3 +178,71 @@ describe("/api/articles", () => {
     });
 });
 
+describe("GET /api/articles/:article_id/comments", () => {
+    test("GET: 200 - responds with an array of comments for the given article_id", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body: { comments } }) => {
+                expect(comments).toBeInstanceOf(Array);
+                if(comments.length === 0){
+                    return;
+                }
+                comments.forEach(comment => {
+                    expect(comment).toMatchObject({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: expect.any(Number)
+                    });
+                });
+            });
+    });
+
+    test("GET: 400 - responds with an error for an invalid article_id", () => {
+        return request(app)
+            .get("/api/articles/invalid_id/comments")
+            .expect(400)
+            .then(({ body }) => {
+                expect(body).toEqual({ message: "Invalid ID" });
+            });
+    });
+    test("GET: 200 - responds with an empty array if no comments exist for an article_id", () => {
+        return request(app)
+            .get("/api/articles/2/comments") 
+            .expect(200)
+            .then(({ body: { comments } }) => {
+                expect(comments).toEqual([]); 
+            });
+    });
+
+    test("GET: 200 - comments are sorted by most recent first", () => {
+        return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then(({ body: { comments } }) => {
+                expect(comments).toBeInstanceOf(Array);
+                comments.forEach(comment => {
+                    expect(comment).toMatchObject({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: expect.any(Number)
+                    });
+                });
+                expect(comments).toBeSortedBy("created_at", { descending: true });
+            });
+    });
+    test("GET: 404 - responds with an error when trying to get comments for a non-existent article_id", () => {
+        return request(app)
+            .get("/api/articles/9999/comments")
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe("Article not found");
+            });
+    });
+});
