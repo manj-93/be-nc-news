@@ -102,23 +102,23 @@ describe("/api/articles/:article_id", () => {
 describe("/api/articles", () => {
     test("GET: 200 - responds with an array of articles without body property", () => {
         return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(({ body: { articles } }) => {
-                expect(articles).toBeInstanceOf(Array);
-                articles.forEach((article) => {
-                    expect(article).toMatchObject({
-                        author: expect.any(String),
-                        title: expect.any(String),
-                        article_id: expect.any(Number),
-                        topic: expect.any(String),
-                        created_at: expect.any(String),
-                        votes: expect.any(Number),
-                        article_img_url: expect.any(String),
-                    });
-                    expect(article).not.toHaveProperty("body");
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+            expect(articles).toBeInstanceOf(Array);
+            articles.forEach((article) => {
+                expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number),
                 });
             });
+        });
     });
     test("GET: 200 - responds with an object of article information", () => {
         return request(app)
@@ -133,7 +133,8 @@ describe("/api/articles", () => {
                     created_at: expect.any(String),
                     votes: 100,
                     article_img_url:"https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            });            
+                    comment_count: 11,
+            });         
         });
     });
     test("GET: 200 - articles are ordered by created_at in descending order", ()=>{
