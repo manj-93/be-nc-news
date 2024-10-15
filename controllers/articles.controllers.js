@@ -32,7 +32,7 @@ exports.getArticles = (request, response, next) => {
     const { sort_by, order, article_id } = request.query;
 
     if (article_id) {
-        const id = +article_id;
+        const id = Number(article_id);
 
         return selectArticleById(id)
             .then((article) => {
@@ -75,4 +75,29 @@ exports.getArticles = (request, response, next) => {
             response.status(200).send({ articles: articlesWithCounts });
         })
         .catch(next);
+};
+
+exports.getCommentsByArticleId = (request, response, next) => {
+    const { article_id } = request.params;
+
+    if (isNaN(article_id) || !Number.isInteger(Number(article_id))) {
+        return response.status(400).send({ message: "Invalid ID" });
+    }
+
+    const id = Number(article_id);
+
+    selectArticleById(id)
+        .then(() => {
+        return selectCommentsByArticleId(id);
+        })
+        .then(comments => {
+            response.status(200).send({ comments });
+        })
+        .catch((err) => {
+            if (err.status) {
+                response.status(err.status).send({ message: err.message });
+            } else {
+                next(err);
+            }
+        });
 };
