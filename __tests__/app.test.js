@@ -4,6 +4,7 @@ const db = require ("../db/connection.js")
 const seed = require("../db/seeds/seed.js")
 const data = require("../db/data/test-data")
 const endpoints = require ("../endpoints.json")
+require('jest-sorted');
 
 beforeEach(()=>{
     return seed(data)
@@ -79,7 +80,7 @@ describe("/api/articles/:article_id", () => {
                 });
             });
     });
-    test("GET: 404 - responds with an error message for an id that does not exist", ()=>{
+    test("GET: 404 - responds with an error message for an id that is valid but does not exist in our database", ()=>{
         return request(app)
         .get("/api/articles/99999")
         .expect(404)
@@ -96,4 +97,79 @@ describe("/api/articles/:article_id", () => {
 
         })
     })
+});
+
+describe("/api/articles", () => {
+    test("GET: 200 - responds with an array of articles without body property", () => {
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { articles } }) => {
+            expect(articles).toBeInstanceOf(Array);
+            articles.forEach((article) => {
+                expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number),
+                });
+            });
+        });
+    });
+    test("GET: 200 - responds with an object of article information", () => {
+        return request(app)
+            .get("/api/articles/1")
+            .expect(200)
+            .then(({ body: { article } }) => {
+                    expect(article).toMatchObject({               
+                    author: "butter_bridge",
+                    title: "Living in the shadow of a great man",
+                    article_id: 1,
+                    topic: "mitch",
+                    created_at: expect.any(String),
+                    votes: 100,
+                    article_img_url:"https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                    comment_count: 11,
+            });         
+        });
+    });
+    test("GET: 200 - articles are ordered by created_at in descending order", ()=>{
+        return request(app)
+        .get("/api/articles?sort_by=created_at")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles).toBeSortedBy("created_at", { descending: true})
+        })
+    });
+    test("GET: 400 - returns an error when given a non-valid sort_by", ()=>{
+        return request(app)
+        .get("/api/articles?sort_by=invalid_column")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.message).toBe("Invalid sort_by query")
+
+        })
+    });
+    test("GET: 400 - responds with an error when passed an article_id that is of an invalid data type", ()=>{
+        return request(app)
+        .get("/api/articles/invalid")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.message).toBe("Invalid ID")
+
+        })
+    });
+    test("GET: 404 - responds with an error when passed an article_id that is valid but not present in our database", ()=>{
+        return request(app)
+        .get("/api/articles?article_id=9999")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.message).toBe("Article not found")
+
+        })
+    });
 });
