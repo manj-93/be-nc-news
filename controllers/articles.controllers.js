@@ -5,15 +5,19 @@ exports.getArticleById = (request, response, next) => {
     const { article_id } = request.params;
 
     if (isNaN(article_id)) {
-        return next({status: 400, message: "Invalid ID"});
+        return next({ status: 400, message: "Invalid ID" });
     }
 
-    selectArticleById(Number(article_id))
+
+    selectArticleById(article_id)
         .then((article) => {
             if (!article) {
                 return next({ status: 404, message: "Article not found" });
             }
-            response.status(200).send({ article });
+            return selectCommentsByArticleId(article_id)
+                .then(comments => {
+                    response.status(200).send({ article, comments });
+                });
         })
         .catch(next);
 };
