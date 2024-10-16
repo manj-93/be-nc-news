@@ -292,4 +292,91 @@ describe("POST /api/articles/:article_id/comments", () => {
           expect(body.message).toBe("Invalid ID");
         });
     });
-  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+    test("200: successfully updates article votes", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article).toMatchObject({
+            article_id: 1,
+            votes: expect.any(Number),
+            title: expect.any(String),
+            topic: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            article_img_url: expect.any(String)
+          });
+          expect(body.article.votes).toBe(101);
+        });
+    });
+    test('200: successfully decrements article votes', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: -1 })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article).toMatchObject({
+              article_id: 1,
+              votes: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              created_at: expect.any(String),
+              article_img_url: expect.any(String)
+            });
+            expect(body.article.votes).toBe(99);
+          });
+    });
+  
+    test("400: returns error for invalid article_id", () => {
+      return request(app)
+        .patch("/api/articles/invalid")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("Invalid article ID");
+        });
+    });
+    test('200: handles large increments and decrements', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 1000 })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article.votes).toBe(1100);
+            return request(app)
+              .patch('/api/articles/1')
+              .send({ inc_votes: -500 })
+              .expect(200);
+          })
+          .then(({ body }) => {
+            expect(body.article.votes).toBe(600);
+          });
+    });
+  
+    test("400: returns error for invalid inc_votes", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "not a number" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe("inc_votes must be a number");
+        });
+    });
+  
+    test("404: returns error for non-existent article_id", () => {
+      return request(app)
+        .patch("/api/articles/9999")
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe("Article not found");
+        });
+    });
+});
