@@ -233,12 +233,13 @@ describe("GET /api/articles/:article_id/comments", () => {
 
 describe("POST /api/articles/:article_id/comments", () => {
     test("201: successfully adds a comment to an article", () => {
+        const newComment = {
+            username: "butter_bridge",
+            body: "This is a test comment"
+        }
       return request(app)
         .post("/api/articles/1/comments")
-        .send({
-          username: "butter_bridge",
-          body: "This is a test comment"
-        })
+        .send(newComment)
         .expect(201)
         .then(({ body }) => {
           expect(body.comment).toMatchObject({
@@ -249,6 +250,8 @@ describe("POST /api/articles/:article_id/comments", () => {
             votes: 0,
             created_at: expect.any(String)
           });
+          expect(body.comment.body).toBe(newComment.body);
+          expect(body.comment.author).toBe(newComment.username);
         });
     });
   
