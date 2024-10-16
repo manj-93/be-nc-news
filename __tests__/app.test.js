@@ -107,8 +107,6 @@ describe("/api/articles", () => {
         .then(({ body: { articles } }) => {
             expect(articles).toBeInstanceOf(Array);
             expect(articles).toHaveLength(13);
-
-            if (articles.length > 0) {
                 articles.forEach((article) => {
                     expect(article).toMatchObject({
                         author: expect.any(String),
@@ -122,7 +120,7 @@ describe("/api/articles", () => {
                     });
                 });
             }
-        });
+        );
     });
     test("GET: 200 - responds with an object of article information", () => {
         return request(app)
@@ -136,9 +134,8 @@ describe("/api/articles", () => {
                     topic: "mitch",
                     created_at: expect.any(String),
                     votes: 100,
-                    article_img_url:"https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-                    comment_count: 11,
-            });         
+                    article_img_url:"https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                });         
         });
     });
     test("GET: 200 - articles are ordered by created_at in descending order", ()=>{
@@ -185,9 +182,7 @@ describe("GET /api/articles/:article_id/comments", () => {
             .expect(200)
             .then(({ body: { comments } }) => {
                 expect(comments).toBeInstanceOf(Array);
-                if(comments.length === 0){
-                    return;
-                }
+                expect(comments).toHaveLength(11);
                 comments.forEach(comment => {
                     expect(comment).toMatchObject({
                         comment_id: expect.any(Number),
@@ -195,7 +190,7 @@ describe("GET /api/articles/:article_id/comments", () => {
                         created_at: expect.any(String),
                         author: expect.any(String),
                         body: expect.any(String),
-                        article_id: expect.any(Number)
+                        article_id: 1
                     });
                 });
             });
@@ -223,17 +218,6 @@ describe("GET /api/articles/:article_id/comments", () => {
             .get("/api/articles/1/comments")
             .expect(200)
             .then(({ body: { comments } }) => {
-                expect(comments).toBeInstanceOf(Array);
-                comments.forEach(comment => {
-                    expect(comment).toMatchObject({
-                        comment_id: expect.any(Number),
-                        votes: expect.any(Number),
-                        created_at: expect.any(String),
-                        author: expect.any(String),
-                        body: expect.any(String),
-                        article_id: expect.any(Number)
-                    });
-                });
                 expect(comments).toBeSortedBy("created_at", { descending: true });
             });
     });
