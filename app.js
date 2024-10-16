@@ -18,11 +18,11 @@ app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
-app.use((err, request, response, next) => {
+app.use((err, req, res, next) => {
     if (err.status) {
-        response.status(err.status).send({ message: err.message });
+        res.status(err.status).send({ message: err.message });
     } else {
-      next(err);
+        res.status(500).send({ message: 'Internal Server Error' });
     }
 });
 
