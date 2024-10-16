@@ -18,6 +18,8 @@ app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id/comments", getArticleById);
 
+app.post('/api/articles/:article_id/comments', postComment);
+
 app.use((err, req, res, next) => {
     if (err.status) {
         res.status(err.status).send({ message: err.message });
