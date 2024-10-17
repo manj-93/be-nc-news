@@ -3,7 +3,7 @@ const app = express();
 const { getTopics } = require("./controllers/topics.controllers");
 const endpoints = require("./endpoints.json");
 const { getArticleById, getArticles } = require("./controllers/articles.controllers");
-const { getComments, postComment } = require("./controllers/comments.controllers");
+const { getComments, postComment, deleteComment } = require("./controllers/comments.controllers");
 const { patchArticleVotes } = require("./controllers/votes.controllers");
 
 app.use(express.json());
@@ -18,6 +18,7 @@ app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles/:article_id/comments', getComments);
 app.post('/api/articles/:article_id/comments', postComment);
 app.patch('/api/articles/:article_id', patchArticleVotes);
+app.delete('/api/comments/:comment_id', deleteComment)
 
 app.all("*", (req, res) => {
   res.status(404).send({ message: "URL NOT FOUND" });

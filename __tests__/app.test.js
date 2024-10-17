@@ -384,7 +384,7 @@ describe("PATCH /api/articles/:article_id", () => {
 describe.only('DELETE /api/comments/:comment_id', () => {
     test('204: successfully deletes a comment', () => {
         return request(app)
-        .delete(api/comments/1)
+        .delete('/api/comments/1')
         .expect(204)
         .then((result)=>{
             expect(result.body).toEqual({})
@@ -396,7 +396,7 @@ describe.only('DELETE /api/comments/:comment_id', () => {
           .delete('/api/comments/999')
           .expect(404)
           .then((response) => {
-            expect(response.message).toBe('Comment not found');
+            expect(response.body.message).toBe('Comment not found');
           });
     });
     
@@ -405,7 +405,7 @@ describe.only('DELETE /api/comments/:comment_id', () => {
           .delete('/api/comments/invalid_id')
           .expect(400)
           .then((response) => {
-            expect(response.message).toBe('Invalid comment ID');
+            expect(response.body.message).toBe('Invalid comment ID');
           });
     });
 });
