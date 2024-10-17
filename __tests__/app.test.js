@@ -198,7 +198,7 @@ describe("GET /api/articles/:article_id/comments", () => {
 
     test("GET: 400 - responds with an error for an invalid article_id", () => {
         return request(app)
-            .get("/api/articles/invalid_id/")
+            .get("/api/articles/invalid_id/comments")
             .expect(400)
             .then(({ body }) => {
                 expect(body).toEqual({ message: "Invalid ID" });
