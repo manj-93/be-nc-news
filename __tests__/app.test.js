@@ -477,3 +477,59 @@ describe('GET /api/users', () => {
           });
       });
 });
+
+describe('GET /api/articles (topic query)', () => {
+    test('200: responds with articles filtered by the specified topic', () => {
+      return request(app)
+        .get('/api/articles?topic=mitch')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeInstanceOf(Array);
+          expect(body.articles).toHaveLength(12);
+          body.articles.forEach(article => {
+            expect(article.topic).toBe('mitch');
+          });
+        });
+    });  
+    test('200: responds with all articles when topic query is omitted', () => {
+      return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeInstanceOf(Array);
+          expect(body.articles.length).toBeGreaterThan(0);
+          const topics = [...new Set(body.articles.map(article => article.topic))];
+          expect(topics.length).toBeGreaterThan(1);
+        });
+    });
+    test('200: topic query works alongside other valid queries', () => {
+      return request(app)
+        .get('/api/articles?topic=mitch&sort_by=created_at&order=desc')
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeInstanceOf(Array);
+          expect(body.articles.length).toBeGreaterThan(0);
+          body.articles.forEach(article => {
+            expect(article.topic).toBe('mitch');
+          });
+          expect(body.articles).toBeSortedBy('created_at', { descending: true });
+        });
+    });
+    test('404: responds with an error for a non-existent topic', () => {
+      return request(app)
+        .get('/api/articles?topic=nonexistent')
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.message).toBe('Topic not found');
+        });
+    });
+    test('400: responds with an error for an invalid topic format', () => {
+      return request(app)
+        .get('/api/articles?topic=123')
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.message).toBe('Invalid topic format');
+        });
+    });
+  
+  })

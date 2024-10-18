@@ -1,9 +1,9 @@
 {
   "GET /api": {
-    "description": "serves up a json representation of all the available endpoints of the api"
+    "description": "Serves up a json representation of all the available endpoints of the api"
   },
   "GET /api/topics": {
-    "description": "serves an array of all topics",
+    "description": "Serves an array of all topics",
     "queries": [],
     "exampleResponse": {
       "topics": [
@@ -39,7 +39,7 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "serves a specific article by its article_id",
+    "description": "Serves a specific article by its article_id",
     "queries": [],
     "exampleResponse": {
       "article": {
@@ -55,7 +55,7 @@
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "serves an array of comments for a specific article by its article_id",
+    "description": "Serves an array of comments for a specific article by its article_id",
     "queries": [],
     "exampleResponse": {
       "comments": [
@@ -79,7 +79,7 @@
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "adds a comment for a specific article by its article_id",
+    "description": "Adds a comment for a specific article by its article_id",
     "requestBody": {
       "username": "string",
       "body": "string"
@@ -96,7 +96,7 @@
     }
   },
   "PATCH /api/articles/:article_id": {
-    "description": "updates the votes of an article",
+    "description": "Updates the votes of an article",
     "queries": [],
     "exampleRequestBody": {
       "inc_votes": 1
