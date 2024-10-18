@@ -100,6 +100,7 @@ describe("/api/articles/:article_id", () => {
 });
 
 describe("/api/articles", () => {
+
     test("GET: 200 - responds with an array of articles without body property", () => {
         return request(app)
         .get("/api/articles")
@@ -138,62 +139,12 @@ describe("/api/articles", () => {
                 });         
         });
     });
-    test("GET: 200 - articles are ordered by created_at in descending order by default", ()=>{
-        return request(app)
-        .get("/api/articles?sort_by=created_at")
-        .expect(200)
-        .then(({body}) => {
-            expect(body.articles).toBeSortedBy("created_at", { descending: true})
-        })
-    });
-    test("GET: 200 - articles can be ordered ascending", () => {
-        return request(app)
-          .get('/api/articles?order=asc')
-          .expect(200)
-          .then(({ body }) => {
-            expect(body.articles).toBeSortedBy('created_at');
-        });
-    });
-    test("GET: 200 - orders by default if sort_by is misspelt", () => {
-        return request(app)
-          .get('/api/articles?soort_by=title')
-          .expect(200)
-          .then(({body}) => {
-            expect(body.articles).toBeSortedBy("created_at", { descending: true})
-        })
-    });
-    test("GET: 200 - orders by default if order query is misspelled", () => {
-        return request(app)
-          .get('/api/articles?orrder=asc')
-          .expect(200)
-          .then(({body}) => {
-            expect(body.articles).toBeSortedBy("created_at", { descending: true})
-        })
     test("GET: 404 - responds with an error when passed an article_id that is valid but not present in our database", ()=>{
         return request(app)
-        .get("/api/articles?article_id=9999")
+        .get("/api/articles/9999")
         .expect(404)
         .then(({ body }) => {
             expect(body.message).toBe("Article not found")
-
-        })
-    });
-    
-    });
-    test("GET: 404 - responds with error when passed an invalid topic", () => {
-        return request(app)
-            .get('/api/articles?topic=invalid_topic')
-            .expect(404)
-            .then(({ body }) => {
-                expect(body.message).toBe('Topic not found');
-            });
-    });
-    test("GET: 400 - returns an error when given a non-valid sort_by", ()=>{
-        return request(app)
-        .get("/api/articles?sort_by=invalid_column")
-        .expect(400)
-        .then(({ body }) => {
-            expect(body.message).toBe("Invalid sort_by query")
 
         })
     });
@@ -205,14 +156,6 @@ describe("/api/articles", () => {
             expect(body.message).toBe("Invalid ID")
 
         })
-    });
-    test("GET: 400 - responds with an error when passed an invalid order query", () => {
-        return request(app)
-          .get('/api/articles?order=down')
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.message).toBe('Invalid order query');
-          });
     });
 });
 
@@ -253,7 +196,6 @@ describe("GET /api/articles/:article_id/comments", () => {
                 expect(comments).toEqual([]); 
             });
     });
-
     test("GET: 200 - comments are sorted by most recent first", () => {
         return request(app)
             .get("/api/articles/1/comments")
@@ -478,6 +420,74 @@ describe('GET /api/users', () => {
       });
 });
 
+describe("GET /api/articles (sorting queries",() => {
+    test("GET: 200 - articles are ordered by created_at in descending order by default", ()=>{
+        return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.articles).toBeSortedBy("created_at", { descending: true})
+        })
+    });
+    test("GET: 200 - articles are ordered by created_at in descending order when specified", () => {
+        return request(app)
+            .get("/api/articles?sort_by=created_at&order=desc")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("created_at", { descending: true });
+            });
+    });
+    test("GET: 200 - articles are ordered by created_at in ascending order when specified", () => {
+        return request(app)
+            .get("/api/articles?sort_by=created_at&order=asc")
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("created_at");
+            });
+    });
+    test("GET: 200 - articles are ordered by votes in ascending order", () => {
+        return request(app)
+            .get('/api/articles?sort_by=votes&order=asc')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("votes");
+            });
+    });
+    test("GET: 200 - articles are ordered by votes in descending order", () => {
+        return request(app)
+            .get('/api/articles?sort_by=votes&order=desc')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeSortedBy("votes", { descending: true });
+            });
+    });
+    test("GET: 200 - orders by default if a query doesn't exist", () => {
+        return request(app)
+          .get('/api/articles?soort_by=title')
+          .expect(200)
+          .then(({body}) => {
+            expect(body.articles).toBeSortedBy("created_at", { descending: true})
+        })
+    });
+    test("GET: 400 - returns an error when given a non-valid sort_by", ()=>{
+        return request(app)
+        .get("/api/articles?sort_by=invalid_column")
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.message).toBe("Invalid sort_by query")
+
+        })
+    });
+    test("GET: 400 - responds with an error when passed an invalid order query", () => {
+        return request(app)
+          .get('/api/articles?order=down')
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.message).toBe('Invalid order query');
+          });
+    });
+})
+
 describe('GET /api/articles (topic query)', () => {
     test('200: responds with articles filtered by the specified topic', () => {
       return request(app)
@@ -531,5 +541,4 @@ describe('GET /api/articles (topic query)', () => {
           expect(body.message).toBe('Invalid topic format');
         });
     });
-  
-  })
+});
