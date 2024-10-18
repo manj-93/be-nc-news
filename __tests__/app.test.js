@@ -146,6 +146,14 @@ describe("/api/articles", () => {
             expect(body.articles).toBeSortedBy("created_at", { descending: true})
         })
     });
+    test('GET: 200 - articles can be ordered ascending', () => {
+        return request(app)
+          .get('/api/articles?order=asc')
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toBeSortedBy('created_at');
+          });
+    });
     test("GET: 400 - returns an error when given a non-valid sort_by", ()=>{
         return request(app)
         .get("/api/articles?sort_by=invalid_column")
