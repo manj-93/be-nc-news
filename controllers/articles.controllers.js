@@ -13,22 +13,13 @@ exports.getArticleById = (request, response, next) => {
       .catch(next);
   };
 
-exports.getArticles = (request, response, next) => {
-    const { sort_by, order, topic, article_id } = request.query;
-  
-    if (article_id) {
-      selectArticleById(article_id)
-        .then((article) => {
-          response.status(200).send({ article });
-        })
-        .catch(next);
-    } else {
-      selectArticles(sort_by, order, topic)
-        .then(articles => {
-          response.status(200).send({ articles });
-        })
-        .catch(next);
-    }
+  exports.getArticles = (request, response, next) => {
+    const { sort_by, order, topic } = request.query;
+    selectArticles(sort_by, order, topic, request.query)
+      .then(articles => {
+        response.status(200).send({ articles });
+      })
+      .catch(next);
   };
   
 exports.getCommentsByArticleId = (request, response, next) => {

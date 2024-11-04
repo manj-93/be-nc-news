@@ -2,7 +2,7 @@ const { selectArticleComments, insertArticleComment, deleteCommentById } = requi
 
 exports.getComments = (request, response, next) => {
   const { article_id } = request.params;
-  selectArticleComments(article_id)
+  selectArticleComments(article_id, request.query)
     .then(comments => {
       response.status(200).send({ comments });
     })
@@ -12,10 +12,12 @@ exports.getComments = (request, response, next) => {
 exports.postComment = (request, response, next) => {
   const { article_id } = request.params;
   const { username, body } = request.body;
+  
   if (!username || !body) {
     return next({ status: 400, message: "Missing required fields" });
   }
-  insertArticleComment(article_id, username, body)
+  
+  insertArticleComment(article_id, username, body, request.query, request.params) 
     .then(comment => {
       response.status(201).send({ comment });
     })
@@ -24,12 +26,12 @@ exports.postComment = (request, response, next) => {
 
 exports.deleteComment = (request, response, next) => {
   const { comment_id } = request.params;
-
+  
   if (isNaN(comment_id) || !Number.isInteger(Number(comment_id))) {
     return next({ status: 400, message: 'Invalid comment ID' });
   }
-
-  deleteCommentById(comment_id)
+  
+  deleteCommentById(comment_id, request.query, request.params)  
     .then(() => {
       response.status(204).send();
     })

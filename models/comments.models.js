@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.selectArticleComments = (articleId) => {
+exports.selectArticleComments = (articleId, queryParams = {}) => {
     return db
       .query("SELECT * FROM articles WHERE article_id = $1", [articleId])
       .then((articleResult) => {
@@ -21,7 +21,7 @@ exports.selectArticleComments = (articleId) => {
       .then((result) => result.rows);
   };
   
-exports.insertArticleComment = (articleId, username, body) => {
+exports.insertArticleComment = (articleId, username, body, queryParams = {}, params = {}) => {
     return db
       .query("SELECT * FROM articles WHERE article_id = $1", [articleId])
       .then((articleResult) => {
@@ -42,7 +42,7 @@ exports.insertArticleComment = (articleId, username, body) => {
   };
 
 
-exports.deleteCommentById = (commentId) => {
+exports.deleteCommentById = (commentId, queryParams = {}, params = {}) => {
     return db.query(
       'DELETE FROM comments WHERE comment_id = $1 RETURNING *',
       [commentId]

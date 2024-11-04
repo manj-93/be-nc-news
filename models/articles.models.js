@@ -8,7 +8,7 @@ const isValidTopicFormat = (topic) => {
     return isNaN(Number(topic));
 };
 
-exports.selectArticles = (sort_by = "created_at", order = "desc", topic, queryParams) => {
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic, queryParams= {}) => {
 
     const allowedParams = ['sort_by', 'order', 'topic'];
     const unexpectedParams = Object.keys(queryParams).filter(param => !allowedParams.includes(param));
@@ -69,7 +69,7 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic, queryPa
         return result.rows;
       });
   };
-exports.selectArticleById = (articleId) => {
+exports.selectArticleById = (articleId, queryParams = {}) => {
     return db
       .query(`
         SELECT 
