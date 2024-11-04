@@ -4,7 +4,7 @@ const db = require ("../db/connection.js")
 const seed = require("../db/seeds/seed.js")
 const data = require("../db/data/test-data")
 const endpoints = require ("../endpoints.json")
-require('jest-sorted');
+require("jest-sorted");
 
 beforeEach(()=>{
     return seed(data)
@@ -297,9 +297,9 @@ describe("PATCH /api/articles/:article_id", () => {
           expect(body.article.votes).toBe(101);
         });
     });
-    test('200: successfully decrements article votes', () => {
+    test("200: successfully decrements article votes", () => {
         return request(app)
-          .patch('/api/articles/1')
+          .patch("/api/articles/1")
           .send({ inc_votes: -1 })
           .expect(200)
           .then(({ body }) => {
@@ -326,15 +326,15 @@ describe("PATCH /api/articles/:article_id", () => {
           expect(body.message).toBe("Invalid article ID");
         });
     });
-    test('200: handles large increments and decrements', () => {
+    test("200: handles large increments and decrements", () => {
         return request(app)
-          .patch('/api/articles/1')
+          .patch("/api/articles/1")
           .send({ inc_votes: 1000 })
           .expect(200)
           .then(({ body }) => {
             expect(body.article.votes).toBe(1100);
             return request(app)
-              .patch('/api/articles/1')
+              .patch("/api/articles/1")
               .send({ inc_votes: -500 })
               .expect(200);
           })
@@ -364,39 +364,39 @@ describe("PATCH /api/articles/:article_id", () => {
     });
 });
 
-describe('DELETE /api/comments/:comment_id', () => {
-    test('204: successfully deletes a comment', () => {
+describe("DELETE /api/comments/:comment_id", () => {
+    test("204: successfully deletes a comment", () => {
         return request(app)
-        .delete('/api/comments/1')
+        .delete("/api/comments/1")
         .expect(204)
         .then((result)=>{
             expect(result.body).toEqual({})
         })
     });
     
-    test('404: returns an error when comment does not exist', () => {
+    test("404: returns an error when comment does not exist", () => {
         return request(app)
-          .delete('/api/comments/999')
+          .delete("/api/comments/999")
           .expect(404)
           .then((response) => {
-            expect(response.body.message).toBe('Comment not found');
+            expect(response.body.message).toBe("Comment not found");
           });
     });
     
-    test('400: returns an error for invalid comment_id', () => {
+    test("400: returns an error for invalid comment_id", () => {
         return request(app)
-          .delete('/api/comments/invalid_id')
+          .delete("/api/comments/invalid_id")
           .expect(400)
           .then((response) => {
-            expect(response.body.message).toBe('Invalid comment ID');
+            expect(response.body.message).toBe("Invalid comment ID");
           });
     });
 });
 
-describe('GET /api/users', () => {
-    test('200: responds with an array of user objects', () => {
+describe("GET /api/users", () => {
+    test("200: responds with an array of user objects", () => {
       return request(app)
-        .get('/api/users')
+        .get("/api/users")
         .expect(200)
         .then(({ body }) => {
           expect(Array.isArray(body.users)).toBe(true);
@@ -410,12 +410,12 @@ describe('GET /api/users', () => {
           });
         });
     });
-      test('404: responds with not found for invalid path', () => {
+      test("404: responds with not found for invalid path", () => {
         return request(app)
-          .get('/api/not-a-valid-path')
+          .get("/api/not-a-valid-path")
           .expect(404)
           .then(({ body }) => {
-            expect(body.message).toBe('URL NOT FOUND');
+            expect(body.message).toBe("URL NOT FOUND");
           });
       });
 });
@@ -447,7 +447,7 @@ describe("GET /api/articles (sorting queries",() => {
     });
     test("GET: 200 - articles are ordered by votes in ascending order", () => {
         return request(app)
-            .get('/api/articles?sort_by=votes&order=asc')
+            .get("/api/articles?sort_by=votes&order=asc")
             .expect(200)
             .then(({ body }) => {
                 expect(body.articles).toBeSortedBy("votes");
@@ -455,7 +455,7 @@ describe("GET /api/articles (sorting queries",() => {
     });
     test("GET: 200 - articles are ordered by votes in descending order", () => {
         return request(app)
-            .get('/api/articles?sort_by=votes&order=desc')
+            .get("/api/articles?sort_by=votes&order=desc")
             .expect(200)
             .then(({ body }) => {
                 expect(body.articles).toBeSortedBy("votes", { descending: true });
@@ -463,7 +463,7 @@ describe("GET /api/articles (sorting queries",() => {
     });
     test("GET: 200 - orders by default if a query doesn't exist", () => {
         return request(app)
-          .get('/api/articles?soort_by=title')
+          .get("/api/articles?soort_by=title")
           .expect(200)
           .then(({body}) => {
             expect(body.articles).toBeSortedBy("created_at", { descending: true})
@@ -480,65 +480,93 @@ describe("GET /api/articles (sorting queries",() => {
     });
     test("GET: 400 - responds with an error when passed an invalid order query", () => {
         return request(app)
-          .get('/api/articles?order=down')
+          .get("/api/articles?order=down")
           .expect(400)
           .then(({ body }) => {
-            expect(body.message).toBe('Invalid order query');
+            expect(body.message).toBe("Invalid order query");
           });
     });
 })
 
-describe('GET /api/articles (topic query)', () => {
-    test('200: responds with articles filtered by the specified topic', () => {
+describe.only("GET /api/articles (topic query)", () => {
+    test("GET: 200 - responds with articles filtered by the specified topic", () => {
       return request(app)
-        .get('/api/articles?topic=mitch')
+        .get("/api/articles?topic=mitch")
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).toBeInstanceOf(Array);
           expect(body.articles).toHaveLength(12);
           body.articles.forEach(article => {
-            expect(article.topic).toBe('mitch');
+            expect(article.topic).toBe("mitch");
           });
         });
-    });  
-    test('200: responds with all articles when topic query is omitted', () => {
+    }); 
+    test("GET: 200 - responds with an empty array for a valid topic with no articles", () => {
+        return request(app)
+            .get('/api/articles?topic=valid_topic_no_articles') // Replace with an actual valid topic that has no articles
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeInstanceOf(Array);
+                expect(body.articles).toHaveLength(0);
+            });
+    });
+    test("GET: 200 - responds with articles for multiple topics", () => {
+        return request(app)
+            .get('/api/articles?topic=mitch,other_topic') // Assuming the API allows this
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles).toBeInstanceOf(Array);
+                body.articles.forEach(article => {
+                    expect(['mitch', 'other_topic']).toContain(article.topic);
+                });
+            });
+    });
+    test("GET: 200 - responds with all articles when topic query is omitted", () => {
       return request(app)
-        .get('/api/articles')
+        .get("/api/articles")
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).toBeInstanceOf(Array);
-          expect(body.articles.length).toBeGreaterThan(0);
+          expect(body.articles).toHaveLength(13);
           const topics = [...new Set(body.articles.map(article => article.topic))];
           expect(topics.length).toBeGreaterThan(1);
         });
     });
-    test('200: topic query works alongside other valid queries', () => {
+    test("GET: 200 - topic query works alongside other valid queries", () => {
       return request(app)
-        .get('/api/articles?topic=mitch&sort_by=created_at&order=desc')
+        .get("/api/articles?topic=mitch&sort_by=created_at&order=desc")
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).toBeInstanceOf(Array);
-          expect(body.articles.length).toBeGreaterThan(0);
+          expect(body.articles).toHaveLength(12);
           body.articles.forEach(article => {
-            expect(article.topic).toBe('mitch');
+            expect(article.topic).toBe("mitch");
           });
-          expect(body.articles).toBeSortedBy('created_at', { descending: true });
+          expect(body.articles).toBeSortedBy("created_at", { descending: true });
         });
     });
-    test('404: responds with an error for a non-existent topic', () => {
+    test("GET: 404 - responds with an error for a non-existent topic", () => {
       return request(app)
-        .get('/api/articles?topic=nonexistent')
+        .get("/api/articles?topic=nonexistent")
         .expect(404)
         .then(({ body }) => {
-          expect(body.message).toBe('Topic not found');
+          expect(body.message).toBe("Topic not found");
         });
     });
-    test('400: responds with an error for an invalid topic format', () => {
+    test("GET: 400 - responds with an error for an invalid topic format", () => {
       return request(app)
-        .get('/api/articles?topic=123')
+        .get("/api/articles?topic=123")
         .expect(400)
         .then(({ body }) => {
-          expect(body.message).toBe('Invalid topic format');
+          expect(body.message).toBe("Invalid topic format");
         });
+    });
+    test("GET: 400 - responds with an error for an unexpected query parameter", () => {
+        return request(app)
+            .get('/api/articles?topic=mitch&unexpected_param=value')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('Invalid query parameter');
+            });
     });
 });

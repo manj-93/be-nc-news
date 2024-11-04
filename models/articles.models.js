@@ -6,68 +6,69 @@ const validOrders = ["asc", "desc"];
 
 const isValidTopicFormat = (topic) => {
     return isNaN(Number(topic));
-  };
+};
 
-exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
-  if (!validSortColumns.includes(sort_by)) {
-    return Promise.reject({ status: 400, message: "Invalid sort_by query" });
-  }
-  if (!validOrders.includes(order.toLowerCase())) {
-    return Promise.reject({ status: 400, message: "Invalid order query" });
-  }
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic, queryParams) => {
 
-  let queryStr = `
-    SELECT
-      a.article_id,
-      a.title,
-      a.author,
-      a.topic,
-      a.created_at,
-      a.votes,
-      a.article_img_url,
-      COUNT(c.comment_id)::INT AS comment_count
-    FROM
-      articles AS a
-    LEFT JOIN
-      comments AS c ON a.article_id = c.article_id
-  `;
-
-  const queryParams = [];
-
-  if (topic) {
-    if (!isValidTopicFormat(topic)) {
-      return Promise.reject({ status: 400, message: "Invalid topic format" });
+    const allowedParams = ['sort_by', 'order', 'topic'];
+    const unexpectedParams = Object.keys(queryParams).filter(param => !allowedParams.includes(param));
+    if (unexpectedParams.length > 0) {
+      return Promise.reject({ status: 400, message: 'Invalid query parameter' });
     }
-    return db.query('SELECT DISTINCT topic FROM articles WHERE topic = $1', [topic])
+  
+    if (!validSortColumns.includes(sort_by)) {
+      return Promise.reject({ status: 400, message: "Invalid sort_by query" });
+    }
+    if (!validOrders.includes(order.toLowerCase())) {
+      return Promise.reject({ status: 400, message: "Invalid order query" });
+    }
+  
+    let queryStr = `
+      SELECT
+        a.article_id,
+        a.title,
+        a.author,
+        a.topic,
+        a.created_at,
+        a.votes,
+        a.article_img_url,
+        COUNT(c.comment_id)::INT AS comment_count
+      FROM
+        articles AS a
+      LEFT JOIN
+        comments AS c ON a.article_id = c.article_id
+    `;
+  
+    const queryValues = [];
+  
+    if (topic) {
+      if (!isValidTopicFormat(topic)) {
+        return Promise.reject({ status: 400, message: "Invalid topic format" });
+      }
+      const topics = topic.split(',');
+      queryStr += ` WHERE a.topic = ANY($1)`;
+      queryValues.push(topics);
+    }
+  
+    queryStr += `
+      GROUP BY a.article_id
+      ORDER BY ${sort_by === 'order' ? 'a.order' : sort_by} ${order}
+    `;
+  
+    return db.query(queryStr, queryValues)
       .then((result) => {
-        if (result.rows.length === 0) {
-          return Promise.reject({ status: 404, message: "Topic not found" });
+        if (result.rows.length === 0 && topic) {
+          return db.query('SELECT  topic FROM articles WHERE topic = ANY($1)', [topic.split(',')])
+            .then((topicResult) => {
+              if (topicResult.rows.length === 0) {
+                return Promise.reject({ status: 404, message: "Topic not found" });
+              }
+              return [];
+            });
         }
-        queryStr += ` WHERE a.topic = $1`;
-        queryParams.push(topic);
-        
-        queryStr += `
-          GROUP BY a.article_id
-          ORDER BY ${sort_by} ${order}
-        `;
-        return db.query(queryStr, queryParams);
-      })
-      .then((result) => {
         return result.rows;
       });
-  }
-
-  queryStr += `
-    GROUP BY a.article_id
-    ORDER BY ${sort_by} ${order}
-  `;
-
-  return db.query(queryStr, queryParams)
-    .then((result) => {
-      return result.rows;
-    });
-}
-
+  };
 exports.selectArticleById = (articleId) => {
     return db
       .query(`
@@ -113,7 +114,8 @@ exports.selectArticleComments = (articleId) => {
         );
       })
       .then((result) => result.rows);
-    }
+    
+};
 exports.getValidTopics = () => {
     return db.query('SELECT topic FROM articles')
       .then((result) => {
